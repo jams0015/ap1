@@ -1,0 +1,153 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+// Classe Conta representa uma conta bancária
+class Conta {
+    private int numero;
+    private double saldo;
+
+    public Conta(int numero, double saldo) {
+        this.numero = numero;
+        this.saldo = saldo;
+    }
+
+    public int getNumero() {
+        return numero;
+    }
+
+    public double getSaldo() {
+        return saldo;
+    }
+
+    @Override
+    public String toString() {
+        return "Número da Conta: " + numero + ", Saldo: R$ " + String.format("%.2f", saldo);
+    }
+}
+
+// Classe RegistroDeContas gerencia as contas bancárias
+class RegistroDeContas {
+    private List<Conta> contas;
+    private int capacidade;
+
+    public RegistroDeContas(int capacidade) {
+        this.capacidade = Math.max(capacidade, 5); // Garante um mínimo de 5 contas
+        this.contas = new ArrayList<>();
+    }
+
+    public boolean registrar(Conta conta) {
+        if (contas.size() < capacidade) {
+            contas.add(conta);
+            return true;
+        }
+        return false;
+    }
+
+    public Conta buscar(int numero) {
+        for (Conta conta : contas) {
+            if (conta.getNumero() == numero) {
+                return conta;
+            }
+        }
+        return null;
+    }
+
+    public boolean remover(int numero) {
+        return contas.removeIf(conta -> conta.getNumero() == numero);
+    }
+
+    public int getQuantidadeRegistradas() {
+        return contas.size();
+    }
+
+    public List<Conta> getTodasContas() {
+        return new ArrayList<>(contas);
+    }
+}
+
+// Classe principal que executa o programa
+public class GestaoDeBanco {
+    public static void main(String[] args) {
+        RegistroDeContas registro = new RegistroDeContas(10);
+        Scanner scanner = new Scanner(System.in);
+        int opcao;
+
+        do {
+            System.out.println("\n--- Gestão de Contas Bancárias ---");
+            System.out.println("1. Registrar nova conta");
+            System.out.println("2. Buscar conta");
+            System.out.println("3. Remover conta");
+            System.out.println("4. Listar todas as contas");
+            System.out.println("5. Sair");
+            System.out.print("Escolha uma opção: ");
+
+            while (!scanner.hasNextInt()) {
+                System.out.println("Entrada inválida. Por favor, insira um número.");
+                scanner.next(); // Limpa a entrada inválida
+            }
+            opcao = scanner.nextInt();
+
+            switch (opcao) {
+                case 1:
+                    System.out.print("Digite o número da conta: ");
+                    while (!scanner.hasNextInt()) {
+                        System.out.println("Entrada inválida. Por favor, insira um número válido.");
+                        scanner.next();
+                    }
+                    int numero = scanner.nextInt();
+
+                    System.out.print("Digite o saldo inicial: ");
+                    while (!scanner.hasNextDouble()) {
+                        System.out.println("Entrada inválida. Por favor, insira um saldo válido.");
+                        scanner.next();
+                    }
+                    double saldo = scanner.nextDouble();
+
+                    if (registro.registrar(new Conta(numero, saldo))) {
+                        System.out.println("Conta registrada com sucesso!");
+                    } else {
+                        System.out.println("Falha ao registrar. Capacidade máxima atingida.");
+                    }
+                    break;
+                case 2:
+                    System.out.print("Digite o número da conta para buscar: ");
+                    while (!scanner.hasNextInt()) {
+                        System.out.println("Entrada inválida. Por favor, insira um número válido.");
+                        scanner.next();
+                    }
+                    int numeroBusca = scanner.nextInt();
+                    Conta contaBuscada = registro.buscar(numeroBusca);
+                    System.out.println(contaBuscada != null ? "Conta encontrada: " + contaBuscada : "Conta não encontrada.");
+                    break;
+                case 3:
+                    System.out.print("Digite o número da conta para remover: ");
+                    while (!scanner.hasNextInt()) {
+                        System.out.println("Entrada inválida. Por favor, insira um número válido.");
+                        scanner.next();
+                    }
+                    int numeroRemover = scanner.nextInt();
+                    System.out.println(registro.remover(numeroRemover) ? "Conta removida com sucesso." : "Conta não encontrada.");
+                    break;
+                case 4:
+                    System.out.println("\nContas Registradas:");
+                    List<Conta> contas = registro.getTodasContas();
+                    if (contas.isEmpty()) {
+                        System.out.println("Nenhuma conta registrada.");
+                    } else {
+                        for (Conta conta : contas) {
+                            System.out.println(conta);
+                        }
+                    }
+                    break;
+                case 5:
+                    System.out.println("Saindo...");
+                    break;
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
+            }
+        } while (opcao != 5);
+
+        scanner.close();
+    }
+}
